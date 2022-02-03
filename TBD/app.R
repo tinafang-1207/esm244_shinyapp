@@ -4,6 +4,8 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(lubridate)
+library(shinydashboard)
+
 
 fish <- read_csv(here("TBD", "data", "LTER_reef_fish.csv"))
 fish_clean <- fish %>% 
@@ -12,20 +14,22 @@ fish_clean <- fish %>%
 
 ### 2. create user interface:
 ui <- fluidPage(
-  titlePanel("Fisheries"),
-  sidebarLayout(
-    sidebarPanel("put my widgets here",
-                 radioButtons(inputId = "kelp_treatment",
-                              label = "Choose treatment:",
-                              choices = c("Control" = "CONTROL",
-                                          "Annual" = "ANNUAL",
-                                          "Continual" = "CONTINUAL"))
-    ), # end sidebar panel
-    
-    mainPanel("put my graph in here",
-              plotOutput(outputId = "treatment_plot"))
-  ) # end sidebarLayout
-)
+  titlePanel("LTER Kelp Removal Experiment in SBC"),
+ 
+   navlistPanel(
+    tabPanel("Home", h3("Here we will put our data info and possibly a map of the area")),
+    tabPanel("Widget 1"),
+    tabPanel("Widget 2"),
+    tabPanel("Widget 3"),
+    tabPanel("Widget 4",
+             radioButtons(inputId = "kelp_treatment",
+                          label = "Choose treatment:",
+                          choices = c("Control" = "CONTROL",
+                                      "Annual" = "ANNUAL",
+                                      "Continual" = "CONTINUAL")),
+             plotOutput(outputId = "treatment_plot"))
+   ))
+
 
 ### 3. create the server fxn
 server <- function(input, output) {
@@ -41,7 +45,7 @@ server <- function(input, output) {
   
   output$treatment_plot <- renderPlot({
     ggplot(data = treatment_select(), aes(x = year, y = count)) +
-      geom_jitter()
+      geom_col()
   })
 }
 
