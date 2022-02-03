@@ -21,7 +21,7 @@ ui <- fluidPage(
     tabPanel("Widget 1"),
     tabPanel("Widget 2"),
     tabPanel("Widget 3"),
-    tabPanel("Widget 4",
+    tabPanel("Widget 4", h3("Annual Fish Counts in Each Treatment"),
              radioButtons(inputId = "kelp_treatment",
                           label = "Choose treatment:",
                           choices = c("Control" = "CONTROL",
