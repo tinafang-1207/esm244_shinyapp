@@ -41,7 +41,7 @@ server <- function(input, output) {
   
   output$treatment_plot <- renderPlot({
     ggplot(data = treatment_select(), aes(x = year, y = count)) +
-      geom_col()
+      geom_jitter()
   })
 }
 
