@@ -1,0 +1,33 @@
+---
+title: "Trials"
+author: "Renee LaManna"
+date: "2/17/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r}
+fish <- read_csv(here("data", "LTER_reef_fish.csv"))
+fish_practice <- fish %>% 
+  clean_names()
+
+```
+
+```{r}
+fish_2 <- fish_practice %>% 
+  group_by(year, treatment) %>% 
+  summarize(count=n()) %>% 
+  mutate(treatment = as.factor(treatment)) 
+```
+
+```{r}
+ggplot(data = fish_2, aes(x = year, y = count)) +
+  geom_line(aes(color = treatment, linetype = treatment)) 
+```
+# input invertebrate dataset which include count
