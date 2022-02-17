@@ -31,3 +31,10 @@ ggplot(data = fish_2, aes(x = year, y = count)) +
   geom_line(aes(color = treatment, linetype = treatment)) 
 ```
 # input invertebrate dataset which include count
+
+
+```{r}
+fish_practice %>% 
+  group_by()
+```
+
