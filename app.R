@@ -18,7 +18,23 @@ fish_clean <- fish %>%
 ui <- fluidPage(theme = "theme.css",
                 titlePanel("LTER Kelp Removal Experiment in SBC"),
                 navlistPanel(              
-                  tabPanel("Home", h3("Here we will put our data info and possibly a map of the area")),
+                  tabPanel("About",
+                           sidebarLayout(
+                             sidebarPanel("Authors: Yutian Fang & Renee LaManna",
+                                          br(),
+                                          " ",
+                                          br(),
+                                          "Fang is a current PhD student, while LaManna is a current Masters student at the Bren School of Environmental Science
+                                         & Management."
+                             ),
+                             mainPanel("This app visualizes data on fish, invertebrates, and algae over the course of 12 years given different treatments of kelp removal at 5 different
+                                Santa Barbara Channel LTER sites.",
+                                br(),
+                                " ",
+                                br(),
+                                "The Santa Barbara Long-Term Ecological Research site was established in 2000 to better understand 
+                                the ecology of kelp forests in this regions. SBC-LTER is based at the University of California, Santa Barbara.")
+                           )),
                   tabPanel("Interactive Map", h3("Interactive Map for users to select kelp, invertebrate and fish abundance")),
                   tabPanel("Kelp", h3("Annual Kelp Counts in Each Treatment"),
                            radioButtons(inputId = "kelp_treatment",
