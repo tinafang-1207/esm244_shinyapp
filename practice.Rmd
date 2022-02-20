@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
 library(janitor)
+library(lubridate)
 ```
 
 ```{r}
@@ -20,15 +21,18 @@ fish_practice <- fish %>%
 ```
 
 ```{r}
+
 fish_2 <- fish_practice %>% 
   group_by(year, treatment) %>% 
-  summarize(count=n()) %>% 
-  mutate(treatment = as.factor(treatment)) 
+  summarize(count=n()) 
+
+
 ```
 
 ```{r}
 ggplot(data = fish_2, aes(x = year, y = count)) +
-  geom_line(aes(color = treatment, linetype = treatment)) 
+  geom_line(aes(color = treatment, linetype = treatment)) + 
+  scale_x_continuous(breaks=c(2008:2020)) 
 ```
 # input invertebrate dataset which include count
 
