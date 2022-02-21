@@ -38,7 +38,9 @@ ggplot(data = fish_2, aes(x = year, y = count)) +
 
 
 ```{r}
-fish_practice %>% 
-  group_by()
+most_abundant <- fish_practice %>% 
+  group_by(common_name) %>% 
+  summarise(most_abundant_fish = sum(count)) %>%  
+  slice_max(order_by = most_abundant_fish, n=5) 
 ```
 

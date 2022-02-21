@@ -20,7 +20,7 @@ fish_inverts_kelp <- fish %>%
 
 
 ### 2. create user interface:
-ui <- fluidPage(theme = "theme.css",
+ui <- fluidPage( theme = bs_theme(bootswatch="sandstone"),
                 titlePanel("LTER Kelp Removal Experiment in SBC"),
                 navlistPanel(              
                   tabPanel("About",
@@ -50,7 +50,7 @@ ui <- fluidPage(theme = "theme.css",
                                                     "Continual" = "CONTINUAL")),
                            selectInput(inputId = "group",
                                        label = "Select a category:",
-                                       choices = c("Fish","Invertebrates")),
+                                       choices = c("Fish","Invertebrates", "Kelp")),
                            
                            
                            mainPanel("put my graph here", # Adding things to the main panel
