@@ -6,6 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
@@ -42,5 +43,25 @@ most_abundant <- fish_practice %>%
   group_by(common_name) %>% 
   summarise(most_abundant_fish = sum(count)) %>%  
   slice_max(order_by = most_abundant_fish, n=5) 
+```
+
+```{r}
+map <- google_map(
+  key = api_key,
+  data = data)
+map %>%
+  add_markers(lat = "LATITUDE", lon = "LONGITUDE")
+```
+
+```{r}
+npp <- read_csv(here("data", "NPP_All_Year.csv")) %>% 
+  clean_names() %>% 
+  group_by(year, site, treatment) %>% 
+  summarise(total_npp = sum(npp_season_g_c_m2_day))
+
+  ggplot(data = npp, aes(x = year, y = total_npp)) +
+      geom_col(aes(color = treatment, fill = treatment)) + 
+      scale_y_continuous(breaks=c(2008, 2009, 2010, 2020)) +
+    coord_flip()
 ```
 
