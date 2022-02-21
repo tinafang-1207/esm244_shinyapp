@@ -24,7 +24,7 @@ fish_practice <- fish %>%
 
 fish_2 <- fish_practice %>% 
   group_by(year, treatment) %>% 
-  summarize(count=n()) 
+  summarize(count=n())
 
 
 ```

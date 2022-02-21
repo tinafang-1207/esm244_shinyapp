@@ -8,9 +8,14 @@ library(shinydashboard)
 library(bslib)
 
 
-fish <- read_csv(here("data", "LTER_reef_fish.csv"))
-fish_clean <- fish %>% 
+fish <- read_csv(here("data", "LTER_reef_fish.csv")) %>% 
   clean_names()
+
+inverts <- read_csv(here("data", "LTE_Quad_Swath.csv")) %>% 
+  clean_names()
+
+fish_inverts_kelp <- fish %>% 
+  full_join(inverts)
 
 
 
@@ -36,28 +41,22 @@ ui <- fluidPage(theme = "theme.css",
                                 the ecology of kelp forests in this regions. SBC-LTER is based at the University of California, Santa Barbara.")
                            )),
                   tabPanel("Interactive Map", h3("Interactive Map for users to select kelp, invertebrate and fish abundance")),
-                  tabPanel("Invertebrate & Fish Counts", h3("Annual Kelp Counts in Each Treatment"),
-                           radioButtons(inputId = "kelp_treatment",
+                  
+                  tabPanel("Invertebrate, Fish, & Algae Counts", h3("Species Counts in Each Treatment"),
+                           radioButtons(inputId = "treatment",
                                         label = "Select a kelp removal treatment:",
                                         choices = c("Control" = "CONTROL",
                                                     "Annual" = "ANNUAL",
                                                     "Continual" = "CONTINUAL")),
-                           plotOutput(outputId = "treatment_plot"),
-                           h3("Annual Kelp Counts in Each Year"),
-                           selectInput(inputId = "kelp_treatment",
+                           selectInput(inputId = "group",
                                        label = "Select a category:",
                                        choices = c("Fish","Invertebrates")),
-                           plotOutput(outputId = "treatment_plot"),
-                           h3("Annual Kelp Counts in Each Site"),
-                           selectInput(inputId = "kelp_treatment",
-                                       label = "Choose Site:",
-                                       choices = c("Arroyo Quemado Reef" = "AQUE",
-                                                   "Carpinteria Reef" = "CARP",
-                                                   "Mohawk Reef" = "MOHK",
-                                                   "Naples Reef" = "NAPL",
-                                                   "Isla Vista" = "IVEE")),
-                           plotOutput(outputId = "treatment_plot")),
-                
+                           
+                           
+                           mainPanel("put my graph here", # Adding things to the main panel
+                                     plotOutput(outputId = "species_plot"))),
+                          
+                            
                     tabPanel("Invertebrate", h3("Annual Invertebrate Counts in Each Treatment"),
                            radioButtons(inputId = "kelp_treatment",
                                         label = "Choose treatment:",
@@ -107,21 +106,28 @@ ui <- fluidPage(theme = "theme.css",
 
 ### 3. create the server fxn
 server <- function(input, output) {
-  treatment_select <- reactive({
-    fish_clean %>%
-      mutate(year = as.factor(year)) %>%
-      mutate(count = as.factor(count)) %>%
-      group_by(year,treatment) %>%
-      summarize(count=n()) %>%
-      filter(year %in% c("2010":"2020")) %>%
-      filter(treatment == input$kelp_treatment)
-  }) # end penguin_select reactive
+  species_select <- reactive ({
+    fish_inverts_kelp %>% 
+      group_by(year, treatment) %>% 
+      summarise(count = n()) %>% 
+      filter(treatment == input$treatment) %>% 
+      filter(group == input$group)
+      
+    
+    })
   
-  output$treatment_plot <- renderPlot({
-    ggplot(data = treatment_select(), aes(x = year, y = count)) +
-      geom_col()
+  output$species_plot <- renderPlot({
+    
+    ggplot(data = species_select(), aes(x = year, y = count)) +
+      geom_line() + 
+      scale_x_continuous(breaks=c(2008:2020)) 
+  
+    
   })
+  
 }
+shinyApp(ui = ui, server = server)
+
 
 ### 4. combine into an app:
 shinyApp(ui = ui, server = server)
