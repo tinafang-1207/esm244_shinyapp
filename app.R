@@ -33,25 +33,25 @@ ui <- fluidPage(
   navbarPage("LTER Kelp Removal Experiment in SBC",
              
              # Site info
-             tabPanel("About",
-                      sidebarLayout(
-                             sidebarPanel("Authors: Yutian Fang & Renee LaManna",
-                                          br(),
-                                          " ",
-                                          br(),
-                                          "Fang is a current PhD student, while LaManna is a current Masters student at the Bren School of Environmental Science
-                                         & Management."
-                             ),
-                             mainPanel("This app visualizes data on fish, invertebrates, and algae over the course of 12 years given different treatments of kelp removal at 5 different
-                                Santa Barbara Channel LTER sites.",
-                                br(),
-                                " ",
-                                br(),
-                                "The Santa Barbara Long-Term Ecological Research site was established in 2000 to better understand 
-                                the ecology of kelp forests in this regions. SBC-LTER is based at the University of California, Santa Barbara.")
-                           )),
-             tabPanel("Interactive Map", h3("Interactive Map for users to select kelp, invertebrate and fish abundance")),
-                  
+              tabPanel("About",
+                       sidebarLayout(
+                              sidebarPanel("Authors: Yutian Fang & Renee LaManna",
+                                           br(),
+                                           " ",
+                                           br(),
+                                           "Fang is a current PhD student, while LaManna is a current Masters student at the Bren School of Environmental Science
+                                          & Management."
+                              ),
+                              mainPanel("This app visualizes data on fish, invertebrates, and algae over the course of 12 years given different treatments of kelp removal at 5 different
+                                 Santa Barbara Channel LTER sites.",
+                                 br(),
+                                 " ",
+                                 br(),
+                                 "The Santa Barbara Long-Term Ecological Research site was established in 2000 to better understand 
+                                 the ecology of kelp forests in this regions. SBC-LTER is based at the University of California, Santa Barbara.")
+                            )),
+              tabPanel("Interactive Map", h3("Interactive Map for users to select kelp, invertebrate and fish abundance")),
+                   
              tabPanel("Invertebrate, Fish, & Algae Counts",
                            sidebarLayout(
                              sidebarPanel( 
@@ -68,58 +68,60 @@ ui <- fluidPage(
                             )#end sidebar Layout
                       ), #end tabPanel
                           
-                            
-                  tabPanel("Net Primary Production",
-                           sidebarLayout(
-                             sidebarPanel(
-                               checkboxGroupInput("select",
-                                                  inputId = "site_select",
-                                                  label = "Choose Site:",
-                                                  choices = c("Arroyo Quemado Reef" = "AQUE",
-                                                   "Carpinteria Reef" = "CARP",
-                                                   "Mohawk Reef" = "MOHK",
-                                                   "Naples Reef" = "NAPL",
-                                                   "Isla Vista" = "IVEE"))),
-                             mainPanel(
-                               plotOutput(outputId = "npp_plot")))),
-                  
-                  tabPanel("Invertebrate, Fish, & Kelp Size Distribution", 
-                           sidebarLayout(
-                             sidebarPanel( 
-                               selectInput(inputId = "size_select",
-                                           label = "Select a species:",
-                                           choices = c("Black Surfperch" = "Black Surfperch",
-                                                       "Blacksmith" = "Blacksmith", 
-                                                       "Kelp Bass" = "Kelp Bass",
-                                                       "Painted Greenling" = "Painted Greenling",
-                                                       "Senorita" = "Senorita",
-                                                       "Giant Keyhole Limpet" = "Giant Key Hole Limpet",
-                                                       "Oar Weed"= "Oar Weed",
-                                                       "Palm Kelp" = "Palm Kelp",
-                                                       "Rock Scallop" = "Rock Scallop",
-                                                       "Warty Sea Cucumber" = "Warty Sea Cucumber",
-                                                       "Purple Sea Urchin" = "Purple Urchin",
-                                                       "Red Sea Urchin" = "Red Urchin"
-                                                       )
-                               ) # end selectInput
-                             ), # end sidebar panel
-                             mainPanel( "put my graph in here",
-                                        plotOutput(outputId = "species_plot")
-                             ) #end mainPanel
-                           )#end sidebar Layout
-                  ) #end tabPanel
-             ) # end navbarpage
-  ) # end UI
+
+                   tabPanel("Net Primary Production",
+                            sidebarLayout(
+                            sidebarPanel(
+                                checkboxGroupInput("select",
+                                                 inputId = "site_select",
+                                                   label = "Choose Site:",
+                                                   choices = c("Arroyo Quemado Reef" = "AQUE",
+                                                    "Carpinteria Reef" = "CARP",
+                                                    "Mohawk Reef" = "MOHK",
+                                                    "Naples Reef" = "NAPL",
+                                                    "Isla Vista" = "IVEE"))),
+                              mainPanel(
+                                plotOutput(outputId = "npp_plot")))),
+  
+                   tabPanel("Invertebrate, Fish, & Kelp Size Distribution",
+                            sidebarLayout(
+                              sidebarPanel(
+                                selectInput(inputId = "size_select",
+                                            label = "Select a species:",
+                                            choices = c("Black Surfperch" = "Black Surfperch",
+                                                        "Blacksmith" = "Blacksmith",
+                                                        "Kelp Bass" = "Kelp Bass",
+                                                        "Painted Greenling" = "Painted Greenling",
+                                                        "Senorita" = "Senorita",
+                                                        "Giant Keyhole Limpet" = "Giant Key Hole Limpet",
+                                                        "Oar Weed"= "Oar Weed",
+                                                        "Palm Kelp" = "Palm Kelp",
+                                                        "Rock Scallop" = "Rock Scallop",
+                                                        "Warty Sea Cucumber" = "Warty Sea Cucumber",
+                                                        "Purple Sea Urchin" = "Purple Urchin",
+                                                        "Red Sea Urchin" = "Red Urchin"
+                                                        )
+                                ) # end selectInput
+                              ), # end sidebar panel
+                              mainPanel( "put my graph in here",
+                                         plotOutput(outputId = "size_plot")
+                              ) #end mainPanel
+                            )#end sidebar Layout
+                   ) #end tabPanel
+              ) # end navbarpage
+   ) # end UI
 
 
 ### 3. create the server fxn
 server <- function(input, output) {
   species_select <- reactive ({
+    message("species_select, input$group_select = ", input$group_select)
     fish_inverts_kelp %>% 
       filter(group == input$group_select)
     }) #end species_select reactive
   
   output$species_plot <- renderPlot({
+    message("species_plot")
     ggplot(data = species_select(), aes(x = year, y = count)) +
       geom_line(aes(color = treatment, linetype = treatment)) + 
       scale_x_continuous(breaks=c(2008:2020))
