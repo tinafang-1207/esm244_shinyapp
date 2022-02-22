@@ -7,7 +7,7 @@ library(lubridate)
 library(shinydashboard)
 library(bslib)
 
-
+### Read in the data
 fish <- read_csv(here("data", "LTER_reef_fish.csv")) %>% 
   clean_names()
 
@@ -55,16 +55,18 @@ ui <- fluidPage(
              tabPanel("Invertebrate, Fish, & Algae Counts",
                            sidebarLayout(
                              sidebarPanel( 
-                               selectInput("select",
-                                           inputId = "group_select",
+                               selectInput(inputId = "group_select",
                                            label = "Select a category:",
                                            choices = c("Fish" = "FISH",
                                                        "Invertebrates" = "INVERT", 
-                                                       "Kelp" = "KELP")
-                                           ) # end selectInout
+                                                       "Algae" = "ALGAE")
+                                           ) # end selectInput
                                ), # end sidebar panel
-                            mainPanel( # Adding things to the main panel
-                                      plotOutput("species_plot")))),
+                            mainPanel( "put my graph in here",
+                                      plotOutput(outputId = "species_plot")
+                                      ) #end mainPanel
+                            )#end sidebar Layout
+                      ), #end tabPanel
                           
                             
                   tabPanel("Net Primary Production",
@@ -81,73 +83,66 @@ ui <- fluidPage(
                              mainPanel(
                                plotOutput(outputId = "npp_plot")))),
                   
-                  tabPanel("Reef Fish", 
-                           h3("Annual Fish Counts in Each Treatment"),
-                           radioButtons(inputId = "kelp_treatment",
-                                        label = "Choose treatment:",
-                                        choices = c("Control" = "CONTROL",
-                                                    "Annual" = "ANNUAL",
-                                                    "Continual" = "CONTINUAL")),
-                           plotOutput(outputId = "treatment_plot"),
-                           h3("Annual Fish Counts in Each Year"),
-                           selectInput(inputId = "kelp_treatment",
-                                       label = "Choose year:",
-                                       choices = c("2008":"2020")),
-                
-                  mainPanel("put my graph here",
-                            plotOutput(outputId = "treatment_plot")) # end main panel
-                  )# end tab panel 
+                  tabPanel("Invertebrate, Fish, & Kelp Size Distribution", 
+                           sidebarLayout(
+                             sidebarPanel( 
+                               selectInput(inputId = "size_select",
+                                           label = "Select a species:",
+                                           choices = c("Black Surfperch" = "Black Surfperch",
+                                                       "Blacksmith" = "Blacksmith", 
+                                                       "Kelp Bass" = "Kelp Bass",
+                                                       "Painted Greenling" = "Painted Greenling",
+                                                       "Senorita" = "Senorita",
+                                                       "Giant Keyhole Limpet" = "Giant Key Hole Limpet",
+                                                       "Oar Weed"= "Oar Weed",
+                                                       "Palm Kelp" = "Palm Kelp",
+                                                       "Rock Scallop" = "Rock Scallop",
+                                                       "Warty Sea Cucumber" = "Warty Sea Cucumber",
+                                                       "Purple Sea Urchin" = "Purple Urchin",
+                                                       "Red Sea Urchin" = "Red Urchin"
+                                                       )
+                               ) # end selectInput
+                             ), # end sidebar panel
+                             mainPanel( "put my graph in here",
+                                        plotOutput(outputId = "species_plot")
+                             ) #end mainPanel
+                           )#end sidebar Layout
+                  ) #end tabPanel
              ) # end navbarpage
   ) # end UI
 
 
 ### 3. create the server fxn
 server <- function(input, output) {
-  
-  fish <- read_csv(here("data", "LTER_reef_fish.csv")) %>% 
-    clean_names()
-  
-  inverts <- read_csv(here("data", "LTE_Quad_Swath.csv")) %>% 
-    clean_names()
-  
-  fish_inverts_kelp <- fish %>% 
-    full_join(inverts)  %>% 
-    group_by(year, treatment, group) %>% 
-    summarise(count = n())
-  
-  npp <- read_csv(here("data", "NPP_All_Year.csv")) %>% 
-    clean_names() %>% 
-    group_by(year, site, treatment) %>% 
-    summarise(total_npp = sum(npp_season_g_c_m2_day))
-  
-  
   species_select <- reactive ({
     fish_inverts_kelp %>% 
       filter(group == input$group_select)
-    })
+    }) #end species_select reactive
   
-  output$species_plot <- renderPlot(
+  output$species_plot <- renderPlot({
     ggplot(data = species_select(), aes(x = year, y = count)) +
       geom_line(aes(color = treatment, linetype = treatment)) + 
-      scale_x_continuous(breaks=c(2008:2020)) 
-    )
+      scale_x_continuous(breaks=c(2008:2020))
+  }) #end species_plot
+}
+
  
    # Widget 3 output
-   npp_select <- reactive ({
-     read_csv("NPP_All_Year.csv") %>% 
-       clean_names() %>% 
-       group_by(year, site, treatment) %>% 
-       summarise(total_npp = sum(npp_season_g_c_m2_day)) %>%  
-      filter(site %in% input$site_select)
-  })
+   #npp_select <- reactive ({
+     #read_csv("NPP_All_Year.csv") %>% 
+       #clean_names() %>% 
+       #group_by(year, site, treatment) %>% 
+       #summarise(total_npp = sum(npp_season_g_c_m2_day)) %>%  
+      #filter(site %in% input$site_select)
+ # })
   
-  output$npp_plot <- renderPlot(
-    ggplot(data = npp_select(), aes(x = year, y = total_npp)) +
-      geom_col(aes(color = treatment)) + 
-      scale_x_continuous(breaks=c(2008:2020)) 
-  ) 
+  #output$npp_plot <- renderPlot(
+    #ggplot(data = npp_select(), aes(x = year, y = total_npp)) +
+      #geom_col(aes(color = treatment)) + 
+      #scale_x_continuous(breaks=c(2008:2020)) 
+  #) 
     
-}
+#}
 
 
 

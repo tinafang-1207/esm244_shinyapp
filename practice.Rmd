@@ -12,39 +12,36 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(lubridate)
+library(naniar)
 ```
 
+### Read in the data
 ```{r}
 fish <- read_csv(here("data", "LTER_reef_fish.csv"))
 fish_practice <- fish %>% 
   clean_names()
 
+inverts <- read_csv(here("data", "LTE_Quad_Swath.csv")) %>% 
+  clean_names()
+
+Sea_Urchin <- read_csv(here("data", "LTE_Urchin_All_Years_20210209.csv")) %>%
+  clean_names()
+
 ```
 
+### Test Abundance
 ```{r}
-
 fish_2 <- fish_practice %>% 
   group_by(year, treatment) %>% 
   summarize(count=n())
 
-
-```
-
-```{r}
 ggplot(data = fish_2, aes(x = year, y = count)) +
   geom_line(aes(color = treatment, linetype = treatment)) + 
   scale_x_continuous(breaks=c(2008:2020)) 
 ```
 # input invertebrate dataset which include count
 
-
-```{r}
-most_abundant <- fish_practice %>% 
-  group_by(common_name) %>% 
-  summarise(most_abundant_fish = sum(count)) %>%  
-  slice_max(order_by = most_abundant_fish, n=5) 
-```
-
+### Test Map
 ```{r}
 map <- google_map(
   key = api_key,
@@ -53,6 +50,7 @@ map %>%
   add_markers(lat = "LATITUDE", lon = "LONGITUDE")
 ```
 
+### Test NPP
 ```{r}
 npp <- read_csv(here("data", "NPP_All_Year.csv")) %>% 
   clean_names() %>% 
@@ -63,5 +61,88 @@ npp <- read_csv(here("data", "NPP_All_Year.csv")) %>%
       geom_col(aes(color = treatment, fill = treatment)) + 
       scale_y_continuous(breaks=c(2008, 2009, 2010, 2020)) +
     coord_flip()
+```
+
+### Test Size
+
+For Reef Fish
+```{r}
+#Find most abundant fish species
+most_abundant_fish <- fish_practice %>% 
+  group_by(common_name) %>% 
+  summarise(most_abundant_fish = sum(count)) %>%  
+  slice_max(order_by = most_abundant_fish, n=5) 
+
+#Clean the original datasheet
+fish_size <- fish_practice %>%
+  filter(common_name %in% c("Senorita","Blacksmith","Painted Greenling","Kelp Bass","Black Surfperch")) %>%
+  select(site, treatment, size, common_name) %>%
+  replace_with_na_all(condition = ~.x == -99999) %>%
+  group_by(common_name, site, treatment) %>%
+  summarise(across(everything(), list(mean), na.rm = TRUE)) %>%
+  drop_na()
+
+#Make dataset for Black Surfperch
+Black_Surfperch <- fish_size %>%
+  filter(common_name == "Black Surfperch")
+
+#Make ggplot - still think it's better to seperate the bar rather than stack them together
+ggplot(data = Black_Surfperch, aes(x = site, y = size_1, fill = treatment)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  labs(x = "Site", y = "Mean Fish Size") +
+  theme_minimal()
+  
+```
+```{r}
+# Make another plot example for Painted Greenling
+ Painted_Greenling <- fish_size %>%
+  filter(common_name == "Painted Greenling")
+
+ggplot(data = Painted_Greenling, aes(x = site, y = size_1, fill = treatment)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  labs(x = "Site", y = "Mean Fish Size") +
+  theme_minimal()
+
+```
+For Inverts
+```{r}
+most_abundant_inverts <- inverts %>% 
+  group_by(common_name) %>% 
+  summarise(most_abundant_inverts = sum(count)) %>%  
+  slice_max(order_by = most_abundant_inverts, n=5) 
+
+inverts_size <- inverts %>%
+  filter(common_name %in% c("Palm Kelp","Giant Key Hole Limpet","Oar Weed","Rock Scallop","Warty Sea Cucumber")) %>%
+  select(site, treatment, size, common_name) %>%
+  replace_with_na_all(condition = ~.x == -99999) %>%
+  group_by(common_name, site, treatment) %>%
+  summarise(across(everything(), list(mean), na.rm = TRUE))
+
+#Make dataset for Giant Key Hole Limpet
+Giant_Limpet <- inverts_size %>%
+  filter(common_name == "Giant Key Hole Limpet")
+
+#Make ggplot for Giant Key Hole Limpet
+ggplot(data = Giant_Limpet, aes(x = site, y = size_1, fill = treatment)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  labs(x = "Site", y = "Mean Inverts Size") +
+  theme_minimal()
+```
+For Sea Urchin
+```{r}
+urchin_size <- Sea_Urchin %>%
+  select(site, treatment, size, common_name) %>%
+  replace_with_na_all(condition = ~.x == -99999) %>%
+  group_by(common_name, site, treatment) %>%
+  summarise(across(everything(), list(mean), na.rm = TRUE))
+
+Purple_Urchin <- urchin_size %>%
+  filter(common_name == "Purple Urchin")
+
+ggplot(data = Purple_Urchin, aes(x = site, y = size_1, fill = treatment)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  labs(x = "Site", y = "Mean Urchin Size") +
+  theme_minimal()
+
 ```
 
