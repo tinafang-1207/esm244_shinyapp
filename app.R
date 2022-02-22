@@ -14,10 +14,15 @@ fish <- read_csv(here("data", "LTER_reef_fish.csv")) %>%
 inverts <- read_csv(here("data", "LTE_Quad_Swath.csv")) %>% 
   clean_names()
 
-fish_inverts_kelp <- fish %>% 
-  full_join(inverts)  %>% 
-  group_by(year, treatment, group) %>% 
-  summarise(count = n())
+fish_inverts <- fish %>% 
+  full_join(inverts)
+
+fish_inverts_clean <- fish_inverts %>%
+  select(year, treatment, count, group) %>%
+  replace_with_na(replace = list(count = -99999)) %>%
+  drop_na() %>%
+  group_by(year,treatment,group) %>%
+  summarize(total_number = sum(count))
 
 npp <- read_csv(here("data", "NPP_All_Year.csv")) %>% 
   clean_names() %>% 
@@ -116,13 +121,13 @@ ui <- fluidPage(
 server <- function(input, output) {
   species_select <- reactive ({
     # message("species_select, input$group_select = ", input$group_select)
-    fish_inverts_kelp %>% 
+    fish_inverts_clean %>% 
       filter(group %in% input$group_select)
     }) #end species_select reactive
   
   output$species_plot <- renderPlot({
     message("species_plot")
-    ggplot(data = species_select(), aes(x = year, y = count)) +
+    ggplot(data = species_select(), aes(x = year, y = total_number)) +
       geom_line(aes(color = treatment, linetype = treatment)) + 
       scale_x_continuous(breaks=c(2008:2020))
   }) #end species_plot

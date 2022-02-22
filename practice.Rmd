@@ -28,6 +28,23 @@ Sea_Urchin <- read_csv(here("data", "LTE_Urchin_All_Years_20210209.csv")) %>%
   clean_names()
 
 ```
+```{r}
+fish_inverts <- fish %>% 
+  full_join(inverts)
+
+fish_inverts_clean <- fish_inverts %>%
+  select(year, treatment, count, group) %>%
+  replace_with_na(replace = list(count = -99999)) %>%
+  drop_na() %>%
+  group_by(year,treatment,group) %>%
+  summarize(total_number = sum(count))
+
+
+  #summarize(total_number = sum(count), na.rm = TRUE)
+```
+
+
+
 
 ### Test Abundance
 ```{r}
