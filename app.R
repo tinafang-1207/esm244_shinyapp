@@ -115,9 +115,9 @@ ui <- fluidPage(
 ### 3. create the server fxn
 server <- function(input, output) {
   species_select <- reactive ({
-    message("species_select, input$group_select = ", input$group_select)
+    # message("species_select, input$group_select = ", input$group_select)
     fish_inverts_kelp %>% 
-      filter(group == input$group_select)
+      filter(group %in% input$group_select)
     }) #end species_select reactive
   
   output$species_plot <- renderPlot({
@@ -126,25 +126,26 @@ server <- function(input, output) {
       geom_line(aes(color = treatment, linetype = treatment)) + 
       scale_x_continuous(breaks=c(2008:2020))
   }) #end species_plot
-}
+
 
  
    # Widget 3 output
-   #npp_select <- reactive ({
-     #read_csv("NPP_All_Year.csv") %>% 
-       #clean_names() %>% 
-       #group_by(year, site, treatment) %>% 
-       #summarise(total_npp = sum(npp_season_g_c_m2_day)) %>%  
-      #filter(site %in% input$site_select)
- # })
+   npp_select <- reactive ({
+     npp %>%  
+    filter(site %in% input$site_select)
+  })
   
-  #output$npp_plot <- renderPlot(
-    #ggplot(data = npp_select(), aes(x = year, y = total_npp)) +
-      #geom_col(aes(color = treatment)) + 
-      #scale_x_continuous(breaks=c(2008:2020)) 
-  #) 
+  output$npp_plot <- renderPlot(
+    ggplot(data = npp_select(), aes(x = year, y = total_npp)) +
+      theme_minimal() +
+      geom_col(aes(color = treatment, fill=treatment)) + 
+      scale_fill_manual(values = c("palegoldenrod", "lightskyblue2", "palegreen4")) + 
+      scale_color_manual(values = c("palegoldenrod", "lightskyblue2", "palegreen4")) +
+      scale_x_continuous(breaks=c(2008:2020)) +
+      coord_flip()
+  ) 
     
-#}
+}
 
 
 
