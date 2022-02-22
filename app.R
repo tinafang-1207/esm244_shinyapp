@@ -119,6 +119,7 @@ ui <- fluidPage(
 
 ### 3. create the server fxn
 server <- function(input, output) {
+  #Widget 2 output
   species_select <- reactive ({
     # message("species_select, input$group_select = ", input$group_select)
     fish_inverts_clean %>% 
