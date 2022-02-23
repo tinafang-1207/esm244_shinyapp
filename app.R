@@ -6,6 +6,10 @@ library(janitor)
 library(lubridate)
 library(shinydashboard)
 library(bslib)
+<<<<<<< HEAD
+=======
+library(lubridate)
+>>>>>>> a996f39419228a0f84c1e1bf5bcafa2c2dbe0e6c
 library(naniar)
 
 ### Read in the data
@@ -15,6 +19,10 @@ fish <- read_csv(here("data", "LTER_reef_fish.csv")) %>%
 inverts <- read_csv(here("data", "LTE_Quad_Swath.csv")) %>% 
   clean_names()
 
+Sea_Urchin <- read_csv(here("data", "LTE_Urchin_All_Years_20210209.csv")) %>%
+  clean_names()
+
+### Clean data for Widget 2 (counts)
 fish_inverts <- fish %>% 
   full_join(inverts)
 
@@ -25,10 +33,53 @@ fish_inverts_clean <- fish_inverts %>%
   group_by(year,treatment,group) %>%
   summarize(total_number = sum(count))
 
+### Clean data for Widget 3 (npp)
 npp <- read_csv(here("data", "NPP_All_Year.csv")) %>% 
   clean_names() %>% 
   group_by(year, site, treatment) %>% 
   summarise(total_npp = sum(npp_season_g_c_m2_day))
+
+### Clean data for Widget 4 (size distribution)
+# Find most abundant species (top 5)
+
+most_abundant_fish <- fish_practice %>% 
+  group_by(common_name) %>% 
+  summarise(most_abundant_fish = sum(count)) %>%  
+  slice_max(order_by = most_abundant_fish, n=5)
+
+most_abundant_inverts <- inverts %>% 
+  group_by(common_name) %>% 
+  summarise(most_abundant_inverts = sum(count)) %>%  
+  slice_max(order_by = most_abundant_inverts, n=5) 
+
+# Filter through the original dataset
+fish_size <- fish %>%
+  filter(common_name %in% c("Senorita","Blacksmith","Painted Greenling","Kelp Bass","Black Surfperch")) %>%
+  select(site, treatment, size, common_name) %>%
+  replace_with_na_all(condition = ~.x == -99999) %>%
+  group_by(common_name, site, treatment) %>%
+  summarise(across(everything(), list(mean), na.rm = TRUE)) %>%
+  drop_na()
+
+inverts_size <- inverts %>%
+  filter(common_name %in% c("Palm Kelp","Giant Key Hole Limpet","Oar Weed","Rock Scallop","Warty Sea Cucumber")) %>%
+  select(site, treatment, size, common_name) %>%
+  replace_with_na_all(condition = ~.x == -99999) %>%
+  group_by(common_name, site, treatment) %>%
+  summarise(across(everything(), list(mean), na.rm = TRUE)) %>%
+  drop_na()
+
+urchin_size <- Sea_Urchin %>%
+  select(site, treatment, size, common_name) %>%
+  replace_with_na_all(condition = ~.x == -99999) %>%
+  group_by(common_name, site, treatment) %>%
+  summarise(across(everything(), list(mean), na.rm = TRUE))
+
+# Combine all the datasets above
+fish_inverts_size <- fish_size %>%
+  full_join(inverts_size)
+fish_inverts_urchin_size <- fish_inverts_size %>%
+  full_join(urchin_size)
 
 
 
@@ -120,22 +171,18 @@ ui <- fluidPage(
 
 ### 3. create the server fxn
 server <- function(input, output) {
-  #Widget 2 output
-  species_select <- reactive ({
-    # message("species_select, input$group_select = ", input$group_select)
+  # Widget 2 output
+  category_select <- reactive ({
     fish_inverts_clean %>% 
       filter(group %in% input$group_select)
-    }) #end species_select reactive
+    }) #end category_select reactive
   
   output$species_plot <- renderPlot({
-    message("species_plot")
-    ggplot(data = species_select(), aes(x = year, y = total_number)) +
+    ggplot(data = category_select (), aes(x = year, y = total_number)) +
       geom_line(aes(color = treatment, linetype = treatment)) + 
       scale_x_continuous(breaks=c(2008:2020))
   }) #end species_plot
 
-
- 
    # Widget 3 output
    npp_select <- reactive ({
      npp %>%  
@@ -151,6 +198,20 @@ server <- function(input, output) {
       scale_x_continuous(breaks=c(2008:2020)) +
       coord_flip()
   ) 
+  
+  # Widget 4 output
+  species_select <- reactive ({
+    fish_inverts_urchin_size %>% 
+      filter(common_name %in% input$size_select)
+  }) #end species_select reactive
+  
+  output$size_plot <- renderPlot({
+    ggplot(data = species_select(), aes(x = site, y = size_1, fill = treatment)) +
+      geom_bar(position = "dodge", stat = "identity") + 
+      labs(x = "Site", y = "Mean Species Size") +
+      scale_fill_brewer(palette = "Set3") +
+      theme_minimal()
+  }) #end size_plot
     
 }
 
