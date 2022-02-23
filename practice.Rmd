@@ -17,8 +17,7 @@ library(naniar)
 
 ### Read in the data
 ```{r}
-fish <- read_csv(here("data", "LTER_reef_fish.csv"))
-fish_practice <- fish %>% 
+fish <- read_csv(here("data", "LTER_reef_fish.csv")) %>%
   clean_names()
 
 inverts <- read_csv(here("data", "LTE_Quad_Swath.csv")) %>% 
@@ -91,7 +90,7 @@ most_abundant_fish <- fish_practice %>%
   slice_max(order_by = most_abundant_fish, n=5) 
 
 #Clean the original datasheet
-fish_size <- fish_practice %>%
+fish_size <- fish %>%
   filter(common_name %in% c("Senorita","Blacksmith","Painted Greenling","Kelp Bass","Black Surfperch")) %>%
   select(site, treatment, size, common_name) %>%
   replace_with_na_all(condition = ~.x == -99999) %>%
@@ -133,7 +132,8 @@ inverts_size <- inverts %>%
   select(site, treatment, size, common_name) %>%
   replace_with_na_all(condition = ~.x == -99999) %>%
   group_by(common_name, site, treatment) %>%
-  summarise(across(everything(), list(mean), na.rm = TRUE))
+  summarise(across(everything(), list(mean), na.rm = TRUE)) %>%
+  drop_na()
 
 #Make dataset for Giant Key Hole Limpet
 Giant_Limpet <- inverts_size %>%
@@ -161,5 +161,12 @@ ggplot(data = Purple_Urchin, aes(x = site, y = size_1, fill = treatment)) +
   labs(x = "Site", y = "Mean Urchin Size") +
   theme_minimal()
 
+```
+
+```{r}
+fish_inverts_size <- fish_size %>%
+  full_join(inverts_size)
+fish_inverts_urchin_size <- fish_inverts_size %>%
+  full_join(urchin_size)
 ```
 
