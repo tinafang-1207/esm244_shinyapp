@@ -6,6 +6,7 @@ library(janitor)
 library(lubridate)
 library(shinydashboard)
 library(bslib)
+library(naniar)
 
 ### Read in the data
 fish <- read_csv(here("data", "LTER_reef_fish.csv")) %>% 
