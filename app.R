@@ -6,10 +6,7 @@ library(janitor)
 library(lubridate)
 library(shinydashboard)
 library(bslib)
-<<<<<<< HEAD
-=======
 library(lubridate)
->>>>>>> a996f39419228a0f84c1e1bf5bcafa2c2dbe0e6c
 library(naniar)
 
 ### Read in the data
