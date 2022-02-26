@@ -13,6 +13,7 @@ library(here)
 library(janitor)
 library(lubridate)
 library(naniar)
+library(leaflet)
 ```
 
 ### Read in the data
@@ -47,18 +48,18 @@ fish_inverts_clean <- fish_inverts %>%
 
 ### Test Abundance
 ```{r}
-fish_2 <- fish_practice %>% 
-  group_by(year, treatment) %>% 
-  summarize(count=n())
-
-ggplot(data = fish_2, aes(x = year, y = count)) +
-  geom_line(aes(color = treatment, linetype = treatment)) + 
-  scale_x_continuous(breaks=c(2008:2020)) 
+# fish_2 <- fish %>% 
+#   group_by(year, treatment) %>% 
+#   summarize(count=n())
+# 
+# ggplot(data = fish_2, aes(x = year, y = count)) 
+#   geom_line(aes(color = treatment, linetype = treatment)) + 
+#   scale_x_continuous(breaks=c(2008:2020)) 
 ```
 # input invertebrate dataset which include count
 
 ### Test Map
-```{r}
+
 map <- google_map(
   key = api_key,
   data = data)
@@ -67,7 +68,7 @@ map %>%
 ```
 
 ### Test NPP
-```{r}
+``` {r}
 npp <- read_csv(here("data", "NPP_All_Year.csv")) %>% 
   clean_names() %>% 
   group_by(year, site, treatment) %>% 
@@ -84,7 +85,7 @@ npp <- read_csv(here("data", "NPP_All_Year.csv")) %>%
 For Reef Fish
 ```{r}
 #Find most abundant fish species
-most_abundant_fish <- fish_practice %>% 
+most_abundant_fish <- fish %>% 
   group_by(common_name) %>% 
   summarise(most_abundant_fish = sum(count)) %>%  
   slice_max(order_by = most_abundant_fish, n=5) 
@@ -170,3 +171,20 @@ fish_inverts_urchin_size <- fish_inverts_size %>%
   full_join(urchin_size)
 ```
 
+
+``` {r}
+sites <- read_csv(here("data", "LTER_sites.csv"))
+
+usaLat <- 34.4208
+usaLon <- -119.6982
+usaZoom <- 8.5
+
+
+leafMap <- leaflet(data = sites) %>%
+  setView(lat = usaLat, lng = usaLon, zoom = usaZoom) %>%
+  addTiles() %>%
+  addMarkers(~longitude, ~latitude, popup = ~site, label = ~site) %>%
+  addProviderTiles(providers$Esri.WorldStreetMap)
+leafMap
+
+```

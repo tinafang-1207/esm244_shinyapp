@@ -8,6 +8,7 @@ library(shinydashboard)
 library(bslib)
 library(lubridate)
 library(naniar)
+library(leaflet)
 
 ### Read in the data
 fish <- read_csv(here("data", "LTER_reef_fish.csv")) %>% 
@@ -18,6 +19,13 @@ inverts <- read_csv(here("data", "LTE_Quad_Swath.csv")) %>%
 
 Sea_Urchin <- read_csv(here("data", "LTE_Urchin_All_Years_20210209.csv")) %>%
   clean_names()
+
+sites <- read_csv(here("data", "LTER_sites.csv"))
+
+usaLat <- 34.4208
+usaLon <- -119.6982
+usaZoom <- 8.5
+
 
 ### Clean data for Widget 2 (counts)
 fish_inverts <- fish %>% 
@@ -39,7 +47,7 @@ npp <- read_csv(here("data", "NPP_All_Year.csv")) %>%
 ### Clean data for Widget 4 (size distribution)
 # Find most abundant species (top 5)
 
-most_abundant_fish <- fish_practice %>% 
+most_abundant_fish <- fish %>% 
   group_by(common_name) %>% 
   summarise(most_abundant_fish = sum(count)) %>%  
   slice_max(order_by = most_abundant_fish, n=5)
@@ -104,7 +112,17 @@ ui <- fluidPage(
                                  "The Santa Barbara Long-Term Ecological Research site was established in 2000 to better understand 
                                  the ecology of kelp forests in this regions. SBC-LTER is based at the University of California, Santa Barbara.")
                             )),
-              tabPanel("Interactive Map", h3("Interactive Map for users to select kelp, invertebrate and fish abundance")),
+              tabPanel("Interactive Map",
+                       sidebarLayout(
+                         sidebarPanel(
+                           tags$h1("Sites"),
+                           selectInput(inputId = "inputSite", label = "Select site:", multiple = TRUE, choices = sort(sites$site), selected = "AQUE"),
+                           tags$h2(" ")),
+                           mainPanel("This map displays the sites at which this data was selected. Select 1 or more sites to learn more about each one!",
+                                     leafletOutput(outputId = "leafletMap")
+                           ) # end main panel
+                         ) # end sidebarLayout
+                       ), # end tabPanel
                    
              tabPanel("Invertebrate, Fish, & Algae Counts",
                            sidebarLayout(
@@ -168,6 +186,21 @@ ui <- fluidPage(
 
 ### 3. create the server fxn
 server <- function(input, output) {
+  
+  # Widget 1 output
+  data <- reactive({
+    sites %>%
+      filter(site %in% input$inputSite) 
+  })
+  
+  output$leafletMap <- renderLeaflet({
+    leaflet(data = data()) %>%
+      setView(lat = usaLat, lng = usaLon, zoom = usaZoom) %>%
+      addTiles() %>%
+      addMarkers(~longitude, ~latitude, popup = ~site, label = ~site) %>%
+      addProviderTiles(providers$Esri.WorldStreetMap)
+  })
+  
   # Widget 2 output
   category_select <- reactive ({
     fish_inverts_clean %>% 
