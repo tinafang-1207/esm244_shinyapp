@@ -20,11 +20,19 @@ inverts <- read_csv(here("data", "LTE_Quad_Swath.csv")) %>%
 Sea_Urchin <- read_csv(here("data", "LTE_Urchin_All_Years_20210209.csv")) %>%
   clean_names()
 
-sites <- read_csv(here("data", "LTER_sites.csv"))
+sites <- read_csv(here("data", "LTER_sites.csv")) %>% 
+  mutate(site_full = case_when(
+    site == "AQUE" ~ "Arroyo Quemado Reef",
+    site == "CARP" ~ "Carpinteria Reef",
+    site == "MOHK" ~ " Mohawk Reef",
+    site == "NAPL" ~ "Naples Reef",
+    site == "IVEE" ~ "Isla Vista Reef"
+  ))
 
 usaLat <- 34.4208
 usaLon <- -119.6982
 usaZoom <- 8.5
+
 
 
 ### Clean data for Widget 2 (counts)
@@ -115,7 +123,6 @@ ui <- fluidPage(
               tabPanel("Interactive Map",
                        sidebarLayout(
                          sidebarPanel(
-                           tags$h1("Sites"),
                            selectInput(inputId = "inputSite", label = "Select site:", multiple = TRUE, choices = sort(sites$site), selected = "AQUE"),
                            tags$h2(" ")),
                            mainPanel("This map displays the sites at which this data was selected. Select 1 or more sites to learn more about each one!",
@@ -127,14 +134,16 @@ ui <- fluidPage(
              tabPanel("Invertebrate, Fish, & Algae Counts",
                            sidebarLayout(
                              sidebarPanel( 
-                               selectInput(inputId = "group_select",
+                               radioButtons(inputId = "group_select",
                                            label = "Select a category:",
                                            choices = c("Fish" = "FISH",
                                                        "Invertebrates" = "INVERT", 
                                                        "Algae" = "ALGAE")
                                            ) # end selectInput
                                ), # end sidebar panel
-                            mainPanel( "put my graph in here",
+                            mainPanel( "Select a species group to see their total counts throughout all survey years. You can also see the
+                                       difference between each of the kelp removal treatment. Notice the substantial decrease in counts across all groups
+                                       in 2015? 2015 was a big El Nino year and Santa Barbara experienced some of their warmest winter sea surface temperatures",
                                       plotOutput(outputId = "species_plot")
                                       ) #end mainPanel
                             )#end sidebar Layout
@@ -144,9 +153,9 @@ ui <- fluidPage(
                    tabPanel("Net Primary Production",
                             sidebarLayout(
                             sidebarPanel(
-                                checkboxGroupInput("select",
-                                                 inputId = "site_select",
-                                                   label = "Choose Site:",
+                                checkboxGroupInput(
+                                  inputId = "site_select",
+                                  label = "Choose Site:",
                                                    choices = c("Arroyo Quemado Reef" = "AQUE",
                                                     "Carpinteria Reef" = "CARP",
                                                     "Mohawk Reef" = "MOHK",
@@ -197,8 +206,11 @@ server <- function(input, output) {
     leaflet(data = data()) %>%
       setView(lat = usaLat, lng = usaLon, zoom = usaZoom) %>%
       addTiles() %>%
-      addMarkers(~longitude, ~latitude, popup = ~site, label = ~site) %>%
+      addMarkers(~longitude, ~latitude, popup = ~site_full, label = ~site) %>%
       addProviderTiles(providers$Esri.WorldStreetMap)
+    
+    
+
   })
   
   # Widget 2 output
@@ -210,7 +222,8 @@ server <- function(input, output) {
   output$species_plot <- renderPlot({
     ggplot(data = category_select (), aes(x = year, y = total_number)) +
       geom_line(aes(color = treatment, linetype = treatment)) + 
-      scale_x_continuous(breaks=c(2008:2020))
+      scale_x_continuous(breaks=c(2008:2020)) +
+      theme_minimal()
   }) #end species_plot
 
    # Widget 3 output

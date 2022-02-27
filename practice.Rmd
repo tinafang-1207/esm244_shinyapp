@@ -184,7 +184,12 @@ leafMap <- leaflet(data = sites) %>%
   setView(lat = usaLat, lng = usaLon, zoom = usaZoom) %>%
   addTiles() %>%
   addMarkers(~longitude, ~latitude, popup = ~site, label = ~site) %>%
-  addProviderTiles(providers$Esri.WorldStreetMap)
-leafMap
+  addProviderTiles(providers$Esri.WorldStreetMap) %>% 
+
+  AQUE = L.marker([34.46775, -120.1191]).bindPopup('This is Littleton, CO.'),
+    CARP   = L.marker([34.39163, -119.5417]).bindPopup('This is Denver, CO.'),
+    MOHK   = L.marker([34.39407, -119.7296]).bindPopup('This is Aurora, CO.'),
+    NAPL    = L.marker([34.39407, -119.9515]).bindPopup('This is Golden, CO.'),
+    IVEE    = L.marker([34.40278, -119.8576]).bindPopup('This is Golden, CO.')
 
 ```
