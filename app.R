@@ -207,7 +207,7 @@ server <- function(input, output) {
     leaflet(data = data()) %>%
       setView(lat = usaLat, lng = usaLon, zoom = usaZoom) %>%
       addTiles() %>%
-      addMarkers(~longitude, ~latitude, popup = ~site_full, label = ~site) %>%
+      addMarkers(~longitude, ~latitude, popup = ~site_info, label = ~site_full) %>%
       addProviderTiles(providers$Esri.WorldStreetMap)
     
     

@@ -1,6 +1,6 @@
-﻿site,latitude,longitude
-AQUE,34.46774988,-120.11905
-CARP,34.3916319,-119.5416933
-MOHK,34.3940708,-119.72957
-NAPL,34.4221216,-119.95154
-IVEE,34.402783,-119.85755
+﻿site,latitude,longitude,site_info
+AQUE,34.46774988,-120.11905,Arroyo Quemado Reef (AQUE) depth range from 5.4 m to 10.7 m. Reference on land is closest to US101/Arroyo Quemada Ln.
+CARP,34.3916319,-119.5416933,Carpinteria Reef (CARP) is located on the Santa Barbara Channel offshore of the Carpinteria Salt Marsh. Depth range is from -2.2 to -8.8 meters
+MOHK,34.3940708,-119.72957,Reference on land is Mohawk Rd / Edgewater Way. Depth of Mohawk Reef (MOHK) ranges from 4.5m to 6.0 m. 
+NAPL,34.4221216,-119.95154,"Naples Reef (NAPL) is located on the Santa Barbara Channel near Naples and Dos Pueblos Canyon, Santa Barbara County, CA. Depth ranges from -5.9 to -13.4 meters."
+IVEE,34.402783,-119.85755,"Isla Vista Reef (IVEE) is located on the Santa Barbara Channel near the University of California Santa Barbara, CA. Depth range is from -8.2 to -8.8 meters."
