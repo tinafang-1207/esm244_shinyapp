@@ -100,12 +100,13 @@ fish_inverts_urchin_size <- fish_inverts_size %>%
 ui <- fluidPage(
   theme = bs_theme(version = 4,
                    bootswatch="sandstone"),
-  navbarPage("LTER Kelp Removal Experiment in SBC",
+  navbarPage(img(src = "kelp.png", height = 140, width = 170),
              
              # Site info
               tabPanel("About",
                        sidebarLayout(
-                              sidebarPanel("Authors: Yutian Fang & Renee LaManna",
+                              sidebarPanel(
+                                          "Authors: Yutian Fang & Renee LaManna",
                                            br(),
                                            " ",
                                            br(),
