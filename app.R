@@ -106,7 +106,9 @@ ui <- fluidPage(
                
                  
               tabPanel("Home",
-                         mainPanel(includeMarkdown("www/home.md"))),
+                       sidebarLayout(
+                         sidebarPanel(),
+                         mainPanel(includeMarkdown("www/home.md")))),
               tabPanel("Interactive Map",
                        sidebarLayout(
                          sidebarPanel(
