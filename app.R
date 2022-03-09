@@ -98,29 +98,13 @@ fish_inverts_urchin_size <- fish_inverts_size %>%
 
 ### 2. create user interface:
 ui <- fluidPage(
-  theme = bs_theme(version = 4,
+  theme = bs_theme(version =5,
                    bootswatch="sandstone"),
-  navbarPage(img(src = "kelp.png", height = 140, width = 170),
-             
-             # Site info
-              tabPanel("About",
-                       sidebarLayout(
-                              sidebarPanel(
-                                          "Authors: Yutian Fang & Renee LaManna",
-                                           br(),
-                                           " ",
-                                           br(),
-                                           "Fang is a current PhD student, while LaManna is a current Masters student at the Bren School of Environmental Science
-                                          & Management."
-                              ),
-                              mainPanel("This app visualizes data on fish, invertebrates, and algae over the course of 12 years given different treatments of kelp removal at 5 different
-                                 Santa Barbara Channel LTER sites.",
-                                 br(),
-                                 " ",
-                                 br(),
-                                 "The Santa Barbara Long-Term Ecological Research site was established in 2000 to better understand 
-                                 the ecology of kelp forests in this regions. SBC-LTER is based at the University of California, Santa Barbara.")
-                            )),
+  navbarPage((img(src = "kelp.png", height = 140, width = 170)),
+               
+                 
+              tabPanel("Home",
+                         mainPanel(includeMarkdown("www/home.md"))),
               tabPanel("Interactive Map",
                        sidebarLayout(
                          sidebarPanel(
