@@ -71,13 +71,13 @@ map %>%
 ``` {r}
 npp <- read_csv(here("data", "NPP_All_Year.csv")) %>% 
   clean_names() %>% 
+  ymd(year, truncated = 2L) %>%
   group_by(year, site, treatment) %>% 
   summarise(total_npp = sum(npp_season_g_c_m2_day))
 
-  ggplot(data = npp, aes(x = year, y = total_npp)) +
-      geom_col(aes(color = treatment, fill = treatment)) + 
-      scale_y_continuous(breaks=c(2008, 2009, 2010, 2020)) +
-    coord_flip()
+  ggplot(data = npp, aes(x = year, y = total_npp, fill = treatment)) +
+      geom_area() +
+      scale_x_continuous(breaks=c(2008:2020))
 ```
 
 ### Test Size
