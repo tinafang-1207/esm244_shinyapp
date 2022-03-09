@@ -109,7 +109,7 @@ ui <- fluidPage(
                        sidebarLayout(
                          sidebarPanel(),
                          mainPanel(includeMarkdown("www/home.md")))),
-              tabPanel("Interactive Map",
+              tabPanel("Site Map",
                        sidebarLayout(
                          sidebarPanel(
                            selectInput(inputId = "inputSite", label = "Select site:", multiple = TRUE, choices = sort(sites$site), selected = "AQUE"),
@@ -120,7 +120,7 @@ ui <- fluidPage(
                          ) # end sidebarLayout
                        ), # end tabPanel
                    
-             tabPanel("Invertebrate, Fish, & Algae Counts",
+             tabPanel("Species Abundance",
                            sidebarLayout(
                              sidebarPanel( 
                                radioButtons(inputId = "group_select",
@@ -153,7 +153,7 @@ ui <- fluidPage(
                               mainPanel(
                                 plotOutput(outputId = "npp_plot")))),
   
-                   tabPanel("Invertebrate, Fish, & Kelp Size Distribution",
+                   tabPanel("Size Distribution",
                             sidebarLayout(
                               sidebarPanel(
                                 selectInput(inputId = "size_select",
