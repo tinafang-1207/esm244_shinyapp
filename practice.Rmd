@@ -96,21 +96,18 @@ fish_size <- fish %>%
   filter(common_name %in% c("Senorita","Blacksmith","Painted Greenling","Kelp Bass","Black Surfperch")) %>%
   select(site, treatment, size, common_name) %>%
   replace_with_na_all(condition = ~.x == -99999) %>%
-  group_by(common_name, site, treatment) %>%
-  summarise(across(everything(), list(mean), na.rm = TRUE))
-  #mutate(mean_size = mean(size), sd_size = sd(size))
-  #summarise(across(everything(), list(mean), na.rm = TRUE)) %>%
-  #drop_na()
+  mutate_all(~replace(., is.na(.), 0)) %>%
+  group_by(site, treatment, common_name) %>%
+  summarise(mean = mean(size), sd = sd(size))
 
 #Make dataset for Black Surfperch
 Black_Surfperch <- fish_size %>%
-  filter(common_name == "Black Surfperch") %>%
-  mutate(sd = sd(size_1))
+  filter(common_name == "Black Surfperch")
 
 #Make ggplot - still think it's better to seperate the bar rather than stack them together
-ggplot(data = Black_Surfperch, aes(x = site, y = size_1, fill = treatment)) +
+ggplot(data = Black_Surfperch, aes(x = site, y = mean, fill = treatment)) +
   geom_bar(position = "dodge", stat = "identity") +
-  geom_errorbar(aes(x = site, ymin=size_1-sd, ymax=size_1+sd),width = 0.4, color = "black", alpha = 0.9, size = 0.5)
+  geom_errorbar(aes(ymin=mean, ymax=mean+sd),width = 0.3, position=position_dodge(1))
   labs(x = "Site", y = "Mean Fish Size") +
   theme_minimal()
   

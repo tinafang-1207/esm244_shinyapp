@@ -70,23 +70,25 @@ fish_size <- fish %>%
   filter(common_name %in% c("Senorita","Blacksmith","Painted Greenling","Kelp Bass","Black Surfperch")) %>%
   select(site, treatment, size, common_name) %>%
   replace_with_na_all(condition = ~.x == -99999) %>%
-  group_by(common_name, site, treatment) %>%
-  summarise(across(everything(), list(mean), na.rm = TRUE)) %>%
-  drop_na()
+  mutate_all(~replace(., is.na(.), 0)) %>%
+  group_by(site, treatment, common_name) %>%
+  summarise(mean = mean(size), sd = sd(size))
 
 inverts_size <- inverts %>%
   filter(common_name %in% c("Palm Kelp","Giant Key Hole Limpet","Oar Weed","Rock Scallop","Warty Sea Cucumber")) %>%
   select(site, treatment, size, common_name) %>%
   replace_with_na_all(condition = ~.x == -99999) %>%
-  group_by(common_name, site, treatment) %>%
-  summarise(across(everything(), list(mean), na.rm = TRUE)) %>%
-  drop_na()
+  mutate_all(~replace(., is.na(.), 0)) %>%
+  group_by(site, treatment, common_name) %>%
+  summarise(mean = mean(size), sd = sd(size))
+
 
 urchin_size <- Sea_Urchin %>%
   select(site, treatment, size, common_name) %>%
   replace_with_na_all(condition = ~.x == -99999) %>%
-  group_by(common_name, site, treatment) %>%
-  summarise(across(everything(), list(mean), na.rm = TRUE))
+  mutate_all(~replace(., is.na(.), 0)) %>%
+  group_by(site, treatment, common_name) %>%
+  summarise(mean = mean(size), sd = sd(size))
 
 # Combine all the datasets above
 fish_inverts_size <- fish_size %>%
@@ -234,7 +236,7 @@ server <- function(input, output) {
   }) #end species_select reactive
   
   output$size_plot <- renderPlot({
-    ggplot(data = species_select(), aes(x = site, y = size_1, fill = treatment)) +
+    ggplot(data = species_select(), aes(x = site, y = mean, fill = treatment)) +
       geom_bar(position = "dodge", stat = "identity") + 
       labs(x = "Site", y = "Mean Species Size") +
       scale_fill_brewer(palette = "Set3") +
