@@ -100,30 +100,16 @@ fish_inverts_urchin_size <- fish_inverts_size %>%
 
 ### 2. create user interface:
 ui <- fluidPage(
-  theme = bs_theme(version = 4,
+  theme = bs_theme(version =5,
                    bootswatch="sandstone"),
-  navbarPage(img(src = "kelp.png", height = 140, width = 170),
-             
-             # Site info
-              tabPanel("About",
+  navbarPage((img(src = "kelp.png", height = 140, width = 170)),
+               
+                 
+              tabPanel("Home",
                        sidebarLayout(
-                              sidebarPanel(
-                                          "Authors: Yutian Fang & Renee LaManna",
-                                           br(),
-                                           " ",
-                                           br(),
-                                           "Fang is a current PhD student, while LaManna is a current Masters student at the Bren School of Environmental Science
-                                          & Management."
-                              ),
-                              mainPanel("This app visualizes data on fish, invertebrates, and algae over the course of 12 years given different treatments of kelp removal at 5 different
-                                 Santa Barbara Channel LTER sites.",
-                                 br(),
-                                 " ",
-                                 br(),
-                                 "The Santa Barbara Long-Term Ecological Research site was established in 2000 to better understand 
-                                 the ecology of kelp forests in this regions. SBC-LTER is based at the University of California, Santa Barbara.")
-                            )),
-              tabPanel("Interactive Map",
+                         sidebarPanel(),
+                         mainPanel(includeMarkdown("www/home.md")))),
+              tabPanel("Site Map",
                        sidebarLayout(
                          sidebarPanel(
                            selectInput(inputId = "inputSite", label = "Select site:", multiple = TRUE, choices = sort(sites$site), selected = "AQUE"),
@@ -134,7 +120,7 @@ ui <- fluidPage(
                          ) # end sidebarLayout
                        ), # end tabPanel
                    
-             tabPanel("Invertebrate, Fish, & Algae Counts",
+             tabPanel("Species Abundance",
                            sidebarLayout(
                              sidebarPanel( 
                                radioButtons(inputId = "group_select",
@@ -167,7 +153,7 @@ ui <- fluidPage(
                               mainPanel(
                                 plotOutput(outputId = "npp_plot")))),
   
-                   tabPanel("Invertebrate, Fish, & Kelp Size Distribution",
+                   tabPanel("Size Distribution",
                             sidebarLayout(
                               sidebarPanel(
                                 selectInput(inputId = "size_select",
