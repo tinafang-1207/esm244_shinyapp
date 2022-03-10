@@ -78,9 +78,18 @@ ui <- fluidPage(
               tabPanel("Site Map",
                        sidebarLayout(
                          sidebarPanel(
-                           selectInput(inputId = "inputSite", label = "Select site:", multiple = TRUE, choices = sort(sites$site), selected = "AQUE"),
+                           checkboxGroupInput(
+                             inputId = "inputSite", 
+                             label = "Select site:",
+                             choices = c("Arroyo Quemado Reef" = "AQUE",
+                                         "Carpinteria Reef" = "CARP",
+                                         "Mohawk Reef" = "MOHK",
+                                         "Naples Reef" = "NAPL",
+                                         "Isla Vista" = "IVEE"), 
+                             selected = "AQUE"),
                            tags$h2(" ")),
-                           mainPanel("This map displays the sites at which this data was selected. Select 1 or more sites to learn more about each one!",
+                           mainPanel(h3("Site Map"),
+                                     "This map displays the sites at which this data was selected. Select 1 or more sites to learn more about each one!",
                                      leafletOutput(outputId = "leafletMap")
                            ) # end main panel
                          ) # end sidebarLayout
@@ -96,9 +105,8 @@ ui <- fluidPage(
                                                        "Algae" = "ALGAE")
                                            ) # end selectInput
                                ), # end sidebar panel
-                            mainPanel( "Select a species group to see their total counts throughout all survey years. You can also see the
-                                       difference between each of the kelp removal treatment. Notice the substantial decrease in counts across all groups
-                                       in 2015? 2015 was a big El Nino year and Santa Barbara experienced some of their warmest winter sea surface temperatures",
+                            mainPanel(h3("Species Abundance"),
+                            "Select a species group to see their total counts throughout all survey years",
                                       plotOutput(outputId = "species_plot")
                                       ) #end mainPanel
                             )#end sidebar Layout
@@ -108,7 +116,7 @@ ui <- fluidPage(
                    tabPanel("Net Primary Production",
                             sidebarLayout(
                             sidebarPanel(
-                                radioButtons(
+                                selectInput(
                                   inputId = "site_select",
                                   label = "Choose Site:",
                                                    choices = c("Arroyo Quemado Reef" = "AQUE",
@@ -116,7 +124,8 @@ ui <- fluidPage(
                                                     "Mohawk Reef" = "MOHK",
                                                     "Naples Reef" = "NAPL",
                                                     "Isla Vista" = "IVEE"))),
-                              mainPanel(
+                              mainPanel(h3("Net Primary Production"),
+                                        "Select a site to see how net primary production of macroalgae aggregated by year changes between treatment types",
                                 plotOutput(outputId = "npp_plot")))),
   
                    tabPanel("Urchin Data",
@@ -168,7 +177,8 @@ server <- function(input, output) {
       geom_line(aes(color = treatment, linetype = treatment)) + 
       scale_x_continuous(breaks=c(2008:2020)) +
       theme_minimal() +
-      scale_color_manual(values = c("steelblue3", "seagreen", "mediumaquamarine")) 
+      scale_color_manual(values = c("steelblue3", "seagreen", "mediumaquamarine")) +
+      labs(x = "Year", y = "Total Species Count")
   }) #end species_plot
 
    # Widget 3 output

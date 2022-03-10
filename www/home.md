@@ -23,5 +23,6 @@ SBC-LTER was established in 2000 to better understand the ecology of kelp forest
 
 ### **About the app developers!**
 
-
+* Yutian Fang:
+[Yutian](https://tinafang-1207.github.io/) is currently a first year Ph.D. student at [Bren School of Environmental Science and Management, UCSB](https://bren.ucsb.edu/people/yutian-fang). Her research interest generally focuses on the intersection between marine spatial planning, fishery management and marine conservation. Her specific research direction right now is to explore the potential of dynamic ocean management to reduce fishery bycatch. During her spare time, she enjoys listening to music, watching TV shows, reading, chatting with her family and friends, and also walking by the beach of Santa Barbara. 
 
