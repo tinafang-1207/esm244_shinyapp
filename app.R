@@ -49,56 +49,22 @@ fish_inverts_clean <- fish_inverts %>%
 ### Clean data for Widget 3 (npp)
 npp <- read_csv(here("data", "NPP_All_Year.csv")) %>% 
   clean_names() %>% 
-  group_by(year, site, treatment) %>% 
+  group_by(year,treatment,site) %>% 
   summarise(total_npp = sum(npp_season_g_c_m2_day))
 
-### Clean data for Widget 4 (size distribution)
-# Find most abundant species (top 5)
+### Clean data for Widget 4 (data table)
+clean_table <- Sea_Urchin %>% 
+  group_by(year, site, treatment, common_name) %>% 
+  summarise(total_count_urchins = sum(count)) %>% 
+  mutate(year = as.factor(year)) %>% 
+  mutate(site = as.factor(site)) %>% 
+  mutate(treatment = as.factor(treatment)) %>% 
+  mutate(common_name = as.factor(common_name)) %>% 
+  mutate(total_count_urchins = as.integer(total_count_urchins))
 
-most_abundant_fish <- fish %>% 
-  group_by(common_name) %>% 
-  summarise(most_abundant_fish = sum(count)) %>%  
-  slice_max(order_by = most_abundant_fish, n=5)
-
-most_abundant_inverts <- inverts %>% 
-  group_by(common_name) %>% 
-  summarise(most_abundant_inverts = sum(count)) %>%  
-  slice_max(order_by = most_abundant_inverts, n=5) 
-
-# Filter through the original dataset
-fish_size <- fish %>%
-  filter(common_name %in% c("Senorita","Blacksmith","Painted Greenling","Kelp Bass","Black Surfperch")) %>%
-  select(site, treatment, size, common_name) %>%
-  replace_with_na_all(condition = ~.x == -99999) %>%
-  mutate_all(~replace(., is.na(.), 0)) %>%
-  group_by(site, treatment, common_name) %>%
-  summarise(mean = mean(size), sd = sd(size))
-
-inverts_size <- inverts %>%
-  filter(common_name %in% c("Palm Kelp","Giant Key Hole Limpet","Oar Weed","Rock Scallop","Warty Sea Cucumber")) %>%
-  select(site, treatment, size, common_name) %>%
-  replace_with_na_all(condition = ~.x == -99999) %>%
-  mutate_all(~replace(., is.na(.), 0)) %>%
-  group_by(site, treatment, common_name) %>%
-  summarise(mean = mean(size), sd = sd(size))
-
-
-urchin_size <- Sea_Urchin %>%
-  select(site, treatment, size, common_name) %>%
-  replace_with_na_all(condition = ~.x == -99999) %>%
-  mutate_all(~replace(., is.na(.), 0)) %>%
-  group_by(site, treatment, common_name) %>%
-  summarise(mean = mean(size), sd = sd(size))
-
-# Combine all the datasets above
-fish_inverts_size <- fish_size %>%
-  full_join(inverts_size)
-fish_inverts_urchin_size <- fish_inverts_size %>%
-  full_join(urchin_size)
-
-
-
-### 2. create user interface:
+  
+  
+  ### 2. create user interface:
 ui <- fluidPage(
   theme = bs_theme(version =5,
                    bootswatch="sandstone"),
@@ -106,9 +72,9 @@ ui <- fluidPage(
                
                  
               tabPanel("Home",
-                       sidebarLayout(
-                         sidebarPanel(),
-                         mainPanel(includeMarkdown("www/home.md")))),
+                       
+                         mainPanel(includeMarkdown("www/home.md"),
+                                   width = 10)),
               tabPanel("Site Map",
                        sidebarLayout(
                          sidebarPanel(
@@ -142,7 +108,7 @@ ui <- fluidPage(
                    tabPanel("Net Primary Production",
                             sidebarLayout(
                             sidebarPanel(
-                                checkboxGroupInput(
+                                radioButtons(
                                   inputId = "site_select",
                                   label = "Choose Site:",
                                                    choices = c("Arroyo Quemado Reef" = "AQUE",
@@ -153,31 +119,20 @@ ui <- fluidPage(
                               mainPanel(
                                 plotOutput(outputId = "npp_plot")))),
   
-                   tabPanel("Size Distribution",
-                            sidebarLayout(
-                              sidebarPanel(
-                                selectInput(inputId = "size_select",
-                                            label = "Select a species:",
-                                            choices = c("Black Surfperch" = "Black Surfperch",
-                                                        "Blacksmith" = "Blacksmith",
-                                                        "Kelp Bass" = "Kelp Bass",
-                                                        "Painted Greenling" = "Painted Greenling",
-                                                        "Senorita" = "Senorita",
-                                                        "Giant Keyhole Limpet" = "Giant Key Hole Limpet",
-                                                        "Oar Weed"= "Oar Weed",
-                                                        "Palm Kelp" = "Palm Kelp",
-                                                        "Rock Scallop" = "Rock Scallop",
-                                                        "Warty Sea Cucumber" = "Warty Sea Cucumber",
-                                                        "Purple Sea Urchin" = "Purple Urchin",
-                                                        "Red Sea Urchin" = "Red Urchin"
-                                                        )
-                                ) # end selectInput
-                              ), # end sidebar panel
-                              mainPanel( "put my graph in here",
-                                         plotOutput(outputId = "size_plot")
+                   tabPanel("Urchin Data",
+                            fluidRow(
+                              p("Sea urchins consume the holdfasts that keep kelp anchored to the seafloor which make scientists believe these two organisms
+                                         strongly interact. If sea urchins are not kept in check by their associated predators, they could decimate a kelp forest. Use
+                                         this interactive data table to explore the differences in urchin counts between sites, in different years, and between the two kelp 
+                                         treatments", style="text-align:justify;color:white;background-color:steelblue;padding:15px;border-radius:10px"
+                            )
+                            ),
+                              mainPanel( 
+                                         width = 10,
+                                         DT::dataTableOutput("mytable")
                               ) #end mainPanel
-                            )#end sidebar Layout
-                   ) #end tabPanel
+                            #end sidebar Layout
+                    )#end tabPanel
               ) # end navbarpage
    ) # end UI
 
@@ -212,7 +167,8 @@ server <- function(input, output) {
     ggplot(data = category_select (), aes(x = year, y = total_number)) +
       geom_line(aes(color = treatment, linetype = treatment)) + 
       scale_x_continuous(breaks=c(2008:2020)) +
-      theme_minimal()
+      theme_minimal() +
+      scale_color_manual(values = c("steelblue3", "seagreen", "mediumaquamarine")) 
   }) #end species_plot
 
    # Widget 3 output
@@ -222,28 +178,25 @@ server <- function(input, output) {
   })
   
   output$npp_plot <- renderPlot(
-    ggplot(data = npp_select(), aes(x = year, y = total_npp)) +
+    ggplot(data = npp_select(), aes(x = year, y = total_npp, fill = treatment)) +
       theme_minimal() +
-      geom_col(aes(color = treatment, fill=treatment)) + 
-      scale_fill_manual(values = c("palegoldenrod", "lightskyblue2", "palegreen4")) + 
-      scale_color_manual(values = c("palegoldenrod", "lightskyblue2", "palegreen4")) +
+      geom_area(alpha=0.6 , size=.5, colour="white") + 
+      scale_fill_manual(values = c("steelblue3", "seagreen", "mediumaquamarine")) + 
       scale_x_continuous(breaks=c(2008:2020)) +
-      coord_flip()
+      labs(x = "Year", y = "Total Net Primary Production")
   ) 
   
   # Widget 4 output
   species_select <- reactive ({
-    fish_inverts_urchin_size %>% 
-      filter(common_name %in% input$size_select)
-  }) #end species_select reactive
+    clean_table %>%  
+      filter(common_name %in% input$name_select)
+  })
   
-  output$size_plot <- renderPlot({
-    ggplot(data = species_select(), aes(x = site, y = mean, fill = treatment)) +
-      geom_bar(position = "dodge", stat = "identity") + 
-      labs(x = "Site", y = "Mean Species Size") +
-      scale_fill_brewer(palette = "Set3") +
-      theme_minimal()
-  }) #end size_plot
+  output$mytable = DT::renderDataTable(
+    clean_table,
+    filter = "top",
+    colnames = c("Year", "Site", "Treatment", "Common name", "Count")
+  )
     
 }
 

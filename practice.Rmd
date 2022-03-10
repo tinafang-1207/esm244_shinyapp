@@ -71,8 +71,8 @@ map %>%
 ``` {r}
 npp <- read_csv(here("data", "NPP_All_Year.csv")) %>% 
   clean_names() %>% 
-  ymd(year, truncated = 2L) %>%
-  group_by(year, site, treatment) %>% 
+  filter(site == "MOHK") %>% 
+  group_by(year, treatment) %>% 
   summarise(total_npp = sum(npp_season_g_c_m2_day))
 
   ggplot(data = npp, aes(x = year, y = total_npp, fill = treatment)) +
