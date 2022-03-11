@@ -94,7 +94,7 @@ ui <- fluidPage(
                                      leafletOutput(outputId = "leafletMap")
                            ) # end main panel
                          ) # end sidebarLayout
-                       ), # end tabPanel
+                        ),# end tabPanel
                    
              tabPanel("Species Abundance", icon = icon("chart-line"),
                            sidebarLayout(
