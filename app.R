@@ -64,38 +64,39 @@ clean_table <- Sea_Urchin %>%
 
   
   
-  ### 2. create user interface:
+### 2. create user interface:
 ui <- fluidPage(
   theme = bs_theme(version =5,
                    bootswatch="sandstone"),
   navbarPage((img(src = "kelp.png", height = 140, width = 170)),
-               
-                 
-              tabPanel("Home",
-                       
-                         mainPanel(includeMarkdown("www/home.md"),
-                                   width = 10)),
-              tabPanel("Site Map",
-                       sidebarLayout(
-                         sidebarPanel(
-                           checkboxGroupInput(
-                             inputId = "inputSite", 
-                             label = "Select site:",
-                             choices = c("Arroyo Quemado Reef" = "AQUE",
+             
+             tabPanel("Home", icon = icon("home"),
+                      mainPanel(includeMarkdown("www/home.md"),
+                                width = 10)),
+             
+             tabPanel("Site Map", icon = icon("map"),
+                      sidebarLayout(
+                        sidebarPanel(
+                          checkboxGroupInput(
+                            inputId = "inputSite", 
+                            label = "Select site:",
+                            choices = c("Arroyo Quemado Reef" = "AQUE",
                                          "Carpinteria Reef" = "CARP",
                                          "Mohawk Reef" = "MOHK",
                                          "Naples Reef" = "NAPL",
                                          "Isla Vista" = "IVEE"), 
-                             selected = "AQUE"),
-                           tags$h2(" ")),
+                            selected = "AQUE"),
+                          tags$h2(" ")),
                            mainPanel(h3("Site Locations"),
-                                     "This map displays the sites at which this data was selected. Select 1 or more sites to learn more about each one!",
+                                     "The Santa Barbara Channel is a portion of the Southern California Bight and separates the mainland from the Channel Islands. Use this tool to explore the locations of each site
+                                     in which data was collected. Click on each site to learn more information!",
+                                     hr(),
                                      leafletOutput(outputId = "leafletMap")
                            ) # end main panel
                          ) # end sidebarLayout
                        ), # end tabPanel
                    
-             tabPanel("Species Abundance",
+             tabPanel("Species Abundance", icon = icon("chart-line"),
                            sidebarLayout(
                              sidebarPanel( 
                                radioButtons(inputId = "group_select",
@@ -106,14 +107,16 @@ ui <- fluidPage(
                                            ) # end selectInput
                                ), # end sidebar panel
                             mainPanel(h3("Species Abundance"),
-                            "Select a species group to see their total counts throughout all survey years and between treatments.",
+                                       "Kelp forests provide habitats for a diverse variety of invertebrates, fish, and marine mammals. 
+                                       Explore species abundance throughout the survey years and in between treatments.",
+                                      hr(),
+                            
                                       plotOutput(outputId = "species_plot")
                                       ) #end mainPanel
                             )#end sidebar Layout
                       ), #end tabPanel
-                          
-
-                   tabPanel("Net Primary Production",
+             
+             tabPanel("Net Primary Production", icon = icon("chart-line"),
                             sidebarLayout(
                             sidebarPanel(
                                 selectInput(
@@ -125,17 +128,20 @@ ui <- fluidPage(
                                                     "Naples Reef" = "NAPL",
                                                     "Isla Vista" = "IVEE"))),
                               mainPanel(h3("Net Primary Production"),
-                                        "Select a site to see how net primary production of macroalgae changes throughout time and between treatments.",
+                                        "Kelp forests are one of the most productive coastal ecosystems at a global scale. Use this tool to select a 
+                                        site to see how net primary production of macroalgae changes throughout time and between treatments.",
                                         width = 8,
+                                        hr(),
                                 plotOutput(outputId = "npp_plot")))),
-  
-                   tabPanel("Urchin Data",
+             
+             tabPanel("Urchin Data", icon = icon("table"),
                             
                             mainPanel(h3("Sea Urchin Exploration"),
                             "Sea urchins consume the holdfasts that keep kelp anchored to the seafloor which make scientists believe these two organisms
                             strongly interact. If sea urchins are not kept in check by their associated predators, they could decimate a kelp forest. Use
                             this interactive data table to explore the differences in urchin counts between sites, in different years, and between the two kelp 
                             treatments.",
+                            hr(),
                             width = 10,
                             DT::dataTableOutput("mytable")
                               ) #end mainPanel
@@ -162,7 +168,6 @@ server <- function(input, output) {
       addProviderTiles(providers$Esri.WorldStreetMap)
     
     
-
   })
   
   # Widget 2 output
@@ -196,7 +201,6 @@ server <- function(input, output) {
   ) 
   
   # Widget 4 output
-  
   
   output$mytable = DT::renderDataTable(
     clean_table,
