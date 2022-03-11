@@ -88,7 +88,7 @@ ui <- fluidPage(
                                          "Isla Vista" = "IVEE"), 
                              selected = "AQUE"),
                            tags$h2(" ")),
-                           mainPanel(h3("Site Map"),
+                           mainPanel(h3("Site Locations"),
                                      "This map displays the sites at which this data was selected. Select 1 or more sites to learn more about each one!",
                                      leafletOutput(outputId = "leafletMap")
                            ) # end main panel
@@ -106,7 +106,7 @@ ui <- fluidPage(
                                            ) # end selectInput
                                ), # end sidebar panel
                             mainPanel(h3("Species Abundance"),
-                            "Select a species group to see their total counts throughout all survey years",
+                            "Select a species group to see their total counts throughout all survey years and between treatments.",
                                       plotOutput(outputId = "species_plot")
                                       ) #end mainPanel
                             )#end sidebar Layout
@@ -125,22 +125,21 @@ ui <- fluidPage(
                                                     "Naples Reef" = "NAPL",
                                                     "Isla Vista" = "IVEE"))),
                               mainPanel(h3("Net Primary Production"),
-                                        "Select a site to see how net primary production of macroalgae aggregated by year changes between treatment types",
+                                        "Select a site to see how net primary production of macroalgae changes throughout time and between treatments.",
+                                        width = 8,
                                 plotOutput(outputId = "npp_plot")))),
   
                    tabPanel("Urchin Data",
-                            fluidRow(
-                              p("Sea urchins consume the holdfasts that keep kelp anchored to the seafloor which make scientists believe these two organisms
-                                         strongly interact. If sea urchins are not kept in check by their associated predators, they could decimate a kelp forest. Use
-                                         this interactive data table to explore the differences in urchin counts between sites, in different years, and between the two kelp 
-                                         treatments", style="text-align:justify;color:white;background-color:steelblue;padding:15px;border-radius:10px"
-                            )
-                            ),
-                              mainPanel( 
-                                         width = 10,
-                                         DT::dataTableOutput("mytable")
+                            
+                            mainPanel(h3("Sea Urchin Exploration"),
+                            "Sea urchins consume the holdfasts that keep kelp anchored to the seafloor which make scientists believe these two organisms
+                            strongly interact. If sea urchins are not kept in check by their associated predators, they could decimate a kelp forest. Use
+                            this interactive data table to explore the differences in urchin counts between sites, in different years, and between the two kelp 
+                            treatments.",
+                            width = 10,
+                            DT::dataTableOutput("mytable")
                               ) #end mainPanel
-                            #end sidebar Layout
+                            
                     )#end tabPanel
               ) # end navbarpage
    ) # end UI
@@ -197,15 +196,13 @@ server <- function(input, output) {
   ) 
   
   # Widget 4 output
-  species_select <- reactive ({
-    clean_table %>%  
-      filter(common_name %in% input$name_select)
-  })
+  
   
   output$mytable = DT::renderDataTable(
     clean_table,
     filter = "top",
-    colnames = c("Year", "Site", "Treatment", "Common name", "Count")
+    colnames = c("Year", "Site", "Treatment", "Common name", "Count"),
+    rownames = FALSE
   )
     
 }
