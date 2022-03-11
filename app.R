@@ -128,8 +128,8 @@ ui <- fluidPage(
                                                     "Naples Reef" = "NAPL",
                                                     "Isla Vista" = "IVEE"))),
                               mainPanel(h3("Net Primary Production"),
-                                        "Kelp forests are one of the most productive coastal ecosystems at a global scale. Use this tool to select a 
-                                        site to see how net primary production of macroalgae changes throughout time and between treatments.",
+                                        "Kelp forests are one of the most productive coastal ecosystems at a global scale. Use this tool to explore
+                                        how net primary production of macroalgae changes throughout time and between treatments.",
                                         width = 8,
                                         hr(),
                                 plotOutput(outputId = "npp_plot")))),
@@ -197,7 +197,8 @@ server <- function(input, output) {
       geom_area(alpha=0.6 , size=.5, colour="white") + 
       scale_fill_manual(values = c("steelblue3", "seagreen", "mediumaquamarine")) + 
       scale_x_continuous(breaks=c(2008:2020)) +
-      labs(x = "Year", y = "Total Net Primary Production")
+      labs(x="Year",
+           y=expression(Net~Primary~Production~gC~m^{-2}~day^{-1})) 
   ) 
   
   # Widget 4 output
